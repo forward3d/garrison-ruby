@@ -34,25 +34,25 @@ module Garrison
         []
       end
 
-      def alert(name:, external_severity:, target:, detail:, finding:, finding_id:, urls: [], key_values: [])
-        Logging.info "Raising alert for '#{target}'"
+      def alert(params = {})
+        Logging.info "Raising alert for '#{params[:target]}'"
 
         alert = Api::Alert.new
         alert.type = type
         alert.family = family
         alert.source = source
 
-        alert.name = name
-        alert.target = target
-        alert.detail = detail
-        alert.severity = external_severity || severity
+        alert.name = params[:name]
+        alert.target = params[:target]
+        alert.detail = params[:detail]
+        alert.severity = params[:external_severity] || severity
 
-        alert.finding = finding
-        alert.finding_id = finding_id
+        alert.finding = params[:finding]
+        alert.finding_id = params[:finding_id]
         alert.detected_at = Time.now.utc
 
-        alert.urls = urls
-        alert.key_values = (self.key_values + key_values).uniq { |h| h[:key] }
+        alert.urls = params[:urls]
+        alert.key_values = (self.key_values + params[:key_values]).uniq { |h| h[:key] }
 
         alert.save
       end
