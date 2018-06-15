@@ -13,6 +13,7 @@ module Garrison
       attr_accessor :detected_at
       attr_accessor :key_values
       attr_accessor :urls
+      attr_accessor :departments
 
       def initialize; end
 
@@ -32,7 +33,8 @@ module Garrison
             source: source,
             severity: severity,
             key_values: key_values,
-            urls: urls
+            urls: urls,
+            departments: departments
           }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )

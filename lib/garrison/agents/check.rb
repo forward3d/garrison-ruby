@@ -4,20 +4,22 @@ module Garrison
 
       attr_accessor :source
       attr_accessor :severity
-      attr_accessor :family
       attr_accessor :type
+      attr_accessor :family
+      attr_accessor :departments
       attr_accessor :options
 
       def initialize(options = {})
-        @source   = ENV['GARRISON_ALERT_SOURCE']
-        @severity = ENV['GARRISON_ALERT_SEVERITY']
-        @type     = ENV['GARRISON_ALERT_TYPE']
-        @family   = ENV['GARRISON_ALERT_FAMILY']
-        @options  = options
+        @source      = ENV['GARRISON_ALERT_SOURCE']
+        @severity    = ENV['GARRISON_ALERT_SEVERITY']
+        @type        = ENV['GARRISON_ALERT_TYPE']
+        @family      = ENV['GARRISON_ALERT_FAMILY']
+        @departments = ENV['GARRISON_ALERT_DEPARTMENTS'] ? ENV['GARRISON_ALERT_DEPARTMENTS'].split(',') : []
+        @options     = options
 
         Logging.info "Starting... #{self.class.name}"
         inherit_settings
-        Logging.info "Agent Settings (source=#{self.source} severity=#{self.severity || 'dynamic'} type=#{self.type} family=#{self.family})"
+        Logging.info "Agent Settings (source=#{self.source} severity=#{self.severity || 'dynamic'} type=#{self.type} family=#{self.family} departments=#{self.departments.join(',')})"
 
         options_log = options.map do |key, value|
           value = value.is_a?(Array) ? value.join(',') : value
@@ -41,6 +43,7 @@ module Garrison
         alert.type = type
         alert.family = family
         alert.source = source
+        alert.departments = departments
 
         alert.name = params[:name]
         alert.target = params[:target]
