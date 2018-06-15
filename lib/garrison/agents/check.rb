@@ -57,6 +57,8 @@ module Garrison
         alert.urls = params[:urls]
         alert.key_values = (self.key_values + params[:key_values]).uniq { |h| h[:key] }
 
+        alert.no_repeat = params[:no_repeat]
+
         alert.save
       end
 

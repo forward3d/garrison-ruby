@@ -14,6 +14,7 @@ module Garrison
       attr_accessor :key_values
       attr_accessor :urls
       attr_accessor :departments
+      attr_accessor :no_repeat
 
       def initialize; end
 
@@ -34,7 +35,8 @@ module Garrison
             severity: severity,
             key_values: key_values,
             urls: urls,
-            departments: departments
+            departments: departments,
+            no_repeat: no_repeat
           }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )
