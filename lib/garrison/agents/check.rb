@@ -1,13 +1,15 @@
 module Garrison
-  module Agents
+  module Checks
     class Check
 
+      attr_accessor :source
       attr_accessor :severity
       attr_accessor :family
       attr_accessor :type
       attr_accessor :options
 
       def initialize(options = {})
+        @source   = ENV['GARRISON_ALERT_SOURCE']
         @severity = ENV['GARRISON_ALERT_SEVERITY']
         @type     = ENV['GARRISON_ALERT_TYPE']
         @family   = ENV['GARRISON_ALERT_FAMILY']
@@ -15,7 +17,7 @@ module Garrison
 
         Logging.info "Starting... #{self.class.name}"
         inherit_settings
-        Logging.info "Agent Settings (severity=#{self.severity} type=#{self.type} family=#{self.family})"
+        Logging.info "Agent Settings (source=#{self.source} severity=#{self.severity} type=#{self.type} family=#{self.family})"
 
         options_log = options.map do |key, value|
           value = value.is_a?(Array) ? value.join(',') : value
@@ -25,7 +27,8 @@ module Garrison
       end
 
       def perform
-        raise 'You must override this method'
+        raise 'You must provide a perform method in your check class'
+      end
 
       def key_values
         []
@@ -37,7 +40,7 @@ module Garrison
         alert = Api::Alert.new
         alert.type = type
         alert.family = family
-        alert.source = 'aws-rds'
+        alert.source = source
 
         alert.name = name
         alert.target = target
