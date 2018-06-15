@@ -1,6 +1,8 @@
 require 'httparty'
 require 'garrison/api/version'
 require 'garrison/api/alert'
+require 'garrison/agents/check'
+require 'garrison/helpers/logger'
 
 module Garrison
   module Api
