@@ -17,7 +17,7 @@ module Garrison
 
         Logging.info "Starting... #{self.class.name}"
         inherit_settings
-        Logging.info "Agent Settings (source=#{self.source} severity=#{self.severity} type=#{self.type} family=#{self.family})"
+        Logging.info "Agent Settings (source=#{self.source} severity=#{self.severity || 'dynamic'} type=#{self.type} family=#{self.family})"
 
         options_log = options.map do |key, value|
           value = value.is_a?(Array) ? value.join(',') : value
@@ -34,7 +34,7 @@ module Garrison
         []
       end
 
-      def alert(name:, target:, detail:, finding:, finding_id:, urls: [], key_values: [])
+      def alert(name:, external_severity:, target:, detail:, finding:, finding_id:, urls: [], key_values: [])
         Logging.info "Raising alert for '#{target}'"
 
         alert = Api::Alert.new
@@ -45,7 +45,7 @@ module Garrison
         alert.name = name
         alert.target = target
         alert.detail = detail
-        alert.severity = severity
+        alert.severity = external_severity || severity
 
         alert.finding = finding
         alert.finding_id = finding_id
