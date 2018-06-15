@@ -26,6 +26,9 @@ module Garrison
 
       def perform
         raise 'You must override this method'
+
+      def key_values
+        []
       end
 
       def alert(name:, target:, detail:, finding:, finding_id:, urls: [], key_values: [])
@@ -46,11 +49,7 @@ module Garrison
         alert.detected_at = Time.now.utc
 
         alert.urls = urls
-
-        alert.key_values = key_values
-        alert.key_values << { key: 'datacenter', value: 'aws' }
-        alert.key_values << { key: 'aws-service', value: 'rds' }
-        alert.key_values << { key: 'aws-account', value: AwsHelper.whoami.account }
+        alert.key_values = (self.key_values + key_values).uniq { |h| h[:key] }
 
         alert.save
       end
