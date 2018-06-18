@@ -10,11 +10,13 @@ module Garrison
       attr_accessor :severity
       attr_accessor :finding
       attr_accessor :finding_id
-      attr_accessor :detected_at
+      attr_accessor :first_detected_at
+      attr_accessor :last_detected_at
       attr_accessor :key_values
       attr_accessor :urls
       attr_accessor :departments
       attr_accessor :no_repeat
+      attr_accessor :count
 
       def initialize; end
 
@@ -28,7 +30,8 @@ module Garrison
             detail: detail,
             finding: finding,
             finding_id: finding_id,
-            detected_at: detected_at,
+            first_detected_at: first_detected_at,
+            last_detected_at: last_detected_at,
             kind: type,
             family: family,
             source: source,
@@ -36,7 +39,8 @@ module Garrison
             key_values: key_values,
             urls: urls,
             departments: departments,
-            no_repeat: no_repeat
+            no_repeat: no_repeat,
+            count: count
           }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )

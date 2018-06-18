@@ -38,6 +38,7 @@ module Garrison
 
       def alert(params = {})
         Logging.info "Raising alert for '#{params[:target]}'"
+        utc_time_now = Time.now.utc
 
         alert = Api::Alert.new
         alert.type = type
@@ -49,10 +50,12 @@ module Garrison
         alert.target = params[:target]
         alert.detail = params[:detail]
         alert.severity = params[:external_severity] || severity
+        alert.count = params[:count] || 1
 
         alert.finding = params[:finding]
         alert.finding_id = params[:finding_id]
-        alert.detected_at = Time.now.utc
+        alert.first_detected_at = params[:first_detected_at] || utc_time_now
+        alert.last_detected_at = params[:last_detected_at] || utc_time_now
 
         alert.urls = params[:urls]
         alert.key_values = (self.key_values + params[:key_values]).uniq { |h| h[:key] }
