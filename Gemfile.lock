@@ -10,7 +10,7 @@ GEM
     httparty (0.16.2)
       multi_xml (>= 0.5.2)
     multi_xml (0.6.0)
-    rake (10.5.0)
+    rake (12.3.2)
 
 PLATFORMS
   ruby
@@ -18,7 +18,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 1.16)
   garrison-api!
-  rake (~> 10.0)
+  rake (~> 12.3)
 
 BUNDLED WITH
    1.16.1
