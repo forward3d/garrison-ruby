@@ -1,6 +1,23 @@
 module Garrison
   module Api
     class Alert
+
+      class << self
+        def obsolete_previous_runs(source)
+          raise ArgumentError, "No source defined" unless source
+          url = File.join(Api.configuration.url, 'api', 'v1', 'alerts', 'obsolete')
+          HTTParty.post(
+            url,
+            body: {
+              source: source,
+              agent_uuid: Api.configuration.uuid,
+              agent_run_uuid: Api.configuration.run_uuid,
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+        end
+      end
+
       attr_accessor :type
       attr_accessor :family
       attr_accessor :source
