@@ -40,7 +40,9 @@ module Garrison
             urls: urls,
             departments: departments,
             no_repeat: no_repeat,
-            count: count
+            count: count,
+            agent_uuid: Api.configuration.uuid,
+            agent_run_uuid: Api.configuration.run_uuid,
           }.to_json,
           headers: { 'Content-Type' => 'application/json' }
         )
