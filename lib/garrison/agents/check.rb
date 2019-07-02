@@ -8,6 +8,8 @@ module Garrison
       attr_accessor :family
       attr_accessor :departments
       attr_accessor :options
+      attr_accessor :run_uuid
+      attr_accessor :state
 
       def initialize(options = {})
         @source      = ENV['GARRISON_ALERT_SOURCE']
@@ -16,10 +18,12 @@ module Garrison
         @family      = ENV['GARRISON_ALERT_FAMILY']
         @departments = ENV['GARRISON_ALERT_DEPARTMENTS'] ? ENV['GARRISON_ALERT_DEPARTMENTS'].split(',') : []
         @options     = options
+        @state       = :initial
 
+        Logging.logger.progname = Api.configuration.uuid
         Logging.info "Starting... #{self.class.name}"
         inherit_settings
-        Logging.info "Agent Settings (source=#{self.source} severity=#{self.severity || 'dynamic'} type=#{self.type} family=#{self.family} departments=#{self.departments.join(',')})"
+        Logging.info "Agent Settings (uuid=#{Api.configuration.uuid} source=#{self.source} severity=#{self.severity || 'dynamic'} type=#{self.type} family=#{self.family} departments=#{self.departments.join(',')})"
 
         options_log = options.map do |key, value|
           value = value.is_a?(Array) ? value.join(',') : value
@@ -28,8 +32,29 @@ module Garrison
         Logging.info "Check Settings (#{options_log.join(' ')})" if options.any?
       end
 
+      def run
+        before_perform
+        begin
+          perform
+        rescue Exception => e
+          Logging.fatal "#{e} - #{e.message}"
+          self.state = :failed
+        end
+        after_perform
+      end
+
       def perform
         raise 'You must provide a perform method in your check class'
+      end
+
+      def before_perform
+        self.run_uuid = Api::Run.create(self)
+      end
+
+      def after_perform
+        self.state = :complete
+        Api::Run.update(self)
+        Api::Alert.obsolete_previous_runs(self) if ENV["GARRISON_AUTO_OBSOLETE"]
       end
 
       def key_values
@@ -41,6 +66,7 @@ module Garrison
         utc_time_now = Time.now.utc
 
         alert = Api::Alert.new
+        alert.run_uuid = self.run_uuid
         alert.type = type
         alert.family = family
         alert.source = source

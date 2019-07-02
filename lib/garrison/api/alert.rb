@@ -3,21 +3,33 @@ module Garrison
     class Alert
 
       class << self
-        def obsolete_previous_runs(source)
-          raise ArgumentError, "No source defined" unless source
+        def obsolete_previous_runs(check)
+          raise ArgumentError, "No source defined" unless check.source
           url = File.join(Api.configuration.url, 'api', 'v1', 'alerts', 'obsolete')
-          HTTParty.post(
-            url,
+
+          party_params = {
             body: {
-              source: source,
-              agent_uuid: Api.configuration.uuid,
-              agent_run_uuid: Api.configuration.run_uuid,
+              source: check.source,
+              agent_id: Api.configuration.uuid,
+              run_id: check.run_uuid,
             }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
-          )
+            headers: { 'Content-Type' => 'application/json' },
+            logger: Logging.logger,
+            log_level: :debug,
+            raise_on: (400..599).to_a
+          }
+
+          Logging.debug "Alert::obsolete_previous_runs - #{party_params[:body]}"
+          HTTParty.post(url, party_params)
+
+        rescue Errno::ECONNREFUSED => e
+          Logging.error "#{e.class} to the Garrison API during Alert::obsolete_previous_runs - #{e.message}"
+        rescue HTTParty::ResponseError => e
+          Logging.error "#{e.class} #{e.message.split(" - ")[0]} - When calling the Garrison API during Alert::obsolete_previous_runs"
         end
       end
 
+      attr_accessor :run_uuid
       attr_accessor :type
       attr_accessor :family
       attr_accessor :source
@@ -39,8 +51,8 @@ module Garrison
 
       def save
         url = File.join(Api.configuration.url, 'api', 'v1', 'alerts')
-        HTTParty.post(
-          url,
+
+        party_params = {
           body: {
             name: name,
             target: target,
@@ -58,11 +70,22 @@ module Garrison
             departments: departments,
             no_repeat: no_repeat,
             count: count,
-            agent_uuid: Api.configuration.uuid,
-            agent_run_uuid: Api.configuration.run_uuid,
+            agent_id: Api.configuration.uuid,
+            run_id: run_uuid,
           }.to_json,
-          headers: { 'Content-Type' => 'application/json' }
-        )
+          headers: { 'Content-Type' => 'application/json' },
+          logger: Logging.logger,
+          log_level: :debug,
+          raise_on: (400..599).to_a
+        }
+
+        Logging.debug "Alert::save - #{party_params[:body]}"
+        HTTParty.post(url, party_params)
+
+      rescue Errno::ECONNREFUSED => e
+        Logging.error "#{e.class} to the Garrison API during Alert::save - #{e.message}"
+      rescue HTTParty::ResponseError => e
+        Logging.error "#{e.class} #{e.message.split(" - ")[0]} - When calling the Garrison API during Alert::save"
       end
     end
   end
