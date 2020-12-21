@@ -14,7 +14,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2020.0512)
     multi_xml (0.6.0)
-    rake (13.0.1)
+    rake (13.0.3)
 
 PLATFORMS
   ruby
